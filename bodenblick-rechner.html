@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bodenblick — Investment- & Steuerrechner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f1ec;color:#24261f;line-height:1.5}
+.wrap{max-width:860px;margin:0 auto;padding:24px 16px 48px}
+
+.hero{background:#26302a;border-radius:16px;padding:28px 28px 24px;margin-bottom:14px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;opacity:0.10;background:repeating-linear-gradient(135deg,#89a86a 0,#89a86a 1px,transparent 1px,transparent 14px)}
+.hero-inner{position:relative;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px}
+.hero-ey{font-size:11px;color:#a8c488;text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px}
+.hero-h{font-size:24px;font-weight:600;color:#f2f2ea;margin-bottom:4px;letter-spacing:-.01em}
+.hero-sub{font-size:13px;color:#9aa593;margin-bottom:16px}
+.hero-for{font-size:12px;color:#c9df9f;margin-top:2px}
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{font-size:11px;padding:4px 11px;border-radius:20px;background:#31402f;color:#a8c488;border:1px solid #46583f}
+.hero-kpi{text-align:right;flex-shrink:0}
+.hero-kpi-v{font-size:32px;font-weight:600;color:#c9df9f;line-height:1;letter-spacing:-.02em}
+.hero-kpi-l{font-size:11px;color:#9aa593;text-transform:uppercase;letter-spacing:0.08em;margin-top:5px}
+
+.card{background:#fff;border:1px solid #e6e3db;border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.step-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #ece9e1}
+.step-num{width:26px;height:26px;border-radius:50%;background:#6f9350;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-size:14px;font-weight:600;color:#24261f}
+.step-title small{display:block;font-size:11px;font-weight:400;color:#8a897f}
+.sec-label{font-size:11px;color:#8a897f;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #ece9e1;font-weight:600}
+
+.row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #f0ede5;font-size:13px}
+.row:last-child{border:none}
+.rl{color:#6b6a60}.rl.b{color:#24261f;font-weight:600}.rl.i{padding-left:12px;color:#8a897f}
+.rv{color:#24261f;font-variant-numeric:tabular-nums}.rv.pos{color:#1d9e6f}.rv.neg{color:#b23b3b}.rv.b{font-weight:600}.rv.gold{color:#a06f16;font-weight:600}
+.row.total{border-top:2px solid #e2ddd3;border-bottom:none;margin-top:4px;padding-top:10px;font-size:15px}
+
+.toggle{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.tbtn{background:#f5f4ee;border:2px solid #e6e3db;border-radius:12px;padding:13px 16px;cursor:pointer;transition:all .12s;text-align:left}
+.tbtn:hover{border-color:#b7cd97}
+.tbtn.active{border-color:#6f9350;background:#f2f8ea;box-shadow:0 2px 10px rgba(111,147,80,.12)}
+.tbtn-t{font-size:15px;font-weight:700;color:#24261f}
+.tbtn-s{font-size:11px;color:#8a897f;margin-top:3px;line-height:1.4}
+
+.slider-wrap{margin-bottom:15px}
+.slider-wrap:last-child{margin-bottom:0}
+.slider-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+.slider-lbl{font-size:13px;color:#5c5b53}
+.slider-val{font-size:16px;font-weight:600;color:#24261f}
+.slider-hint{font-size:11px;color:#a09e94;margin-top:1px;text-align:right}
+input[type=range]{width:100%;height:5px;appearance:none;-webkit-appearance:none;background:#e2ddd3;border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#6f9350;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#6f9350;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.22);cursor:pointer}
+
+.mini-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+@media(max-width:560px){.mini-grid{grid-template-columns:1fr 1fr}}
+.mini{background:#f5f4ee;border-radius:10px;padding:12px 14px}
+.mini-l{font-size:11px;color:#8a897f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+.mini-v{font-size:17px;font-weight:600;color:#24261f}
+
+.scen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.scen{background:#f5f4ee;border:2px solid #e6e3db;border-radius:12px;padding:14px 14px 12px;cursor:pointer;transition:all .12s;text-align:left}
+.scen:hover{border-color:#b7cd97}
+.scen.active{border-color:#6f9350;background:#f2f8ea;box-shadow:0 2px 10px rgba(111,147,80,.12)}
+.scen-days{font-size:24px;font-weight:700;color:#24261f;line-height:1}
+.scen-days small{font-size:12px;font-weight:500;color:#8a897f}
+.scen-split{font-size:11px;color:#8a897f;margin:6px 0 8px;line-height:1.5}
+.scen-gross{font-size:14px;font-weight:600;color:#3f6b2a}
+.scen-check{font-size:10px;color:#6f9350;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:6px;opacity:0;transition:opacity .12s}
+.scen.active .scen-check{opacity:1}
+
+.saison-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.saison-item{background:#f5f4ee;border-radius:10px;padding:12px 14px}
+.sbar{height:6px;background:#e2ddd3;border-radius:3px;overflow:hidden;margin-top:7px}
+.sbar-fill{height:100%;border-radius:3px}
+
+.wf-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0ede5;font-size:14px}
+.wf-row .l{color:#5c5b53;display:flex;align-items:center;gap:8px}
+.wf-row .op{color:#b7b5aa;font-weight:600;width:14px;text-align:center;flex-shrink:0}
+.wf-row .v{font-weight:600;font-variant-numeric:tabular-nums}
+.wf-row.result{background:#26302a;color:#e6ecdf;border-radius:10px;padding:14px 16px;border:none;margin-top:8px}
+.wf-row.result .l{color:#c9df9f;font-weight:600}
+.wf-row.result .v{font-size:20px;color:#fff}
+.wf-row.sub{background:#f5f4ee;border-radius:8px;padding:11px 14px;border:none;margin-top:8px}
+.wf-row.sub .l{color:#24261f;font-weight:600}
+.gold-hl{background:#fbf4e4;border:1px solid #edd8a6;border-radius:8px;padding:11px 14px;margin-top:8px;display:flex;justify-content:space-between;align-items:center;font-size:14px}
+.gold-hl .l{color:#8a6414;font-weight:600}.gold-hl .v{color:#a06f16;font-weight:700}
+
+.steuer{background:#fbf4e4;border:1px solid #edd8a6;border-radius:14px;padding:18px 22px;margin-bottom:14px}
+.steuer-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:520px){.steuer-grid{grid-template-columns:1fr}}
+.steuer .row{border-bottom:1px solid #efe7d3}
+.steuer-box{background:#fff8e9;border:1px solid #edd8a6;border-radius:10px;padding:15px 16px;margin-top:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.steuer-box-l{font-size:12px;color:#8a6414;font-weight:600}
+.steuer-box-sub{font-size:11px;color:#b0904e;margin-top:2px}
+.steuer-box-v{font-size:26px;font-weight:700;color:#8a6414;letter-spacing:-.01em}
+
+/* Liquiditätstabelle */
+.liq-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #ece9e1;border-radius:10px}
+table.liq{border-collapse:collapse;width:100%;min-width:720px;font-size:12px;font-variant-numeric:tabular-nums}
+table.liq th{background:#f5f4ee;color:#6b6a60;font-weight:600;text-align:right;padding:9px 10px;position:sticky;top:0;border-bottom:1px solid #e2ddd3;white-space:nowrap;font-size:11px}
+table.liq th:first-child{text-align:left}
+table.liq td{padding:8px 10px;text-align:right;border-bottom:1px solid #f2efe8;white-space:nowrap}
+table.liq td:first-child{text-align:left;color:#24261f}
+tr.yr{cursor:pointer}
+tr.yr:hover{background:#faf9f4}
+tr.yr.open{background:#f2f8ea}
+tr.yr td:first-child::before{content:'▸ ';color:#6f9350;font-size:10px}
+tr.yr.open td:first-child::before{content:'▾ '}
+tr.yr0 td:first-child::before{content:''}
+tr.mon td{background:#fbfaf6;color:#8a897f;font-size:11px;border-bottom:1px solid #f4f1ea}
+tr.mon td:first-child{padding-left:24px}
+td.pos{color:#1d9e6f}td.neg{color:#b23b3b}td.b{font-weight:700;color:#24261f}
+.liq-legend{font-size:11px;color:#a09e94;margin-top:8px;line-height:1.6}
+
+.verm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+@media(max-width:560px){.verm-grid{grid-template-columns:1fr}}
+.verm-c{background:#f5f4ee;border-radius:12px;padding:14px 16px;border-top:3px solid #b7bfae}
+.verm-c.hl{background:#f2f8ea;border:1px solid #cfe3b4;border-top:3px solid #6f9350}
+.verm-t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;color:#6b6a60}
+.verm-l{font-size:11px;color:#8a897f;margin-bottom:2px}
+.verm-v{font-size:16px;font-weight:600;margin-bottom:8px}
+
+.result{background:#26302a;border-radius:16px;padding:26px 28px;margin-bottom:14px;position:relative;overflow:hidden;color:#e6ecdf}
+.result::before{content:'';position:absolute;inset:0;opacity:0.08;background:repeating-linear-gradient(135deg,#89a86a 0,#89a86a 1px,transparent 1px,transparent 14px)}
+.result-inner{position:relative}
+.result-eyebrow{font-size:11px;color:#a8c488;text-transform:uppercase;letter-spacing:.12em;margin-bottom:14px}
+.result-main{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:18px}
+@media(max-width:560px){.result-main{grid-template-columns:1fr}}
+.result-big{font-size:32px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.result-big.gold{color:#e6c25f}.result-big.green{color:#c9df9f}
+.result-cap{font-size:12px;color:#9aa593;margin-top:6px;line-height:1.4}
+.result-strip{position:relative;border-top:1px solid #3a4a37;padding-top:16px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:560px){.result-strip{grid-template-columns:1fr}}
+.rs-l{font-size:11px;color:#9aa593;text-transform:uppercase;letter-spacing:.05em}
+.rs-v{font-size:17px;font-weight:600;color:#e6ecdf;margin-top:3px}
+
+.feat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:600px){.feat-grid{grid-template-columns:1fr 1fr}}
+.feat{background:#fff;border:1px solid #e6e3db;border-radius:10px;padding:13px}
+.feat-ico{font-size:20px;margin-bottom:6px}
+.feat-t{font-size:12px;color:#8a897f;line-height:1.5}
+.feat-t strong{color:#24261f;font-weight:600;display:block;margin-bottom:2px}
+
+.note{font-size:11px;color:#a09e94;line-height:1.6;margin-top:4px}
+
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;padding:11px 18px;border-radius:9px;border:none;cursor:pointer;transition:transform .1s}
+.btn:hover{transform:translateY(-1px)}
+.btn-p{background:#6f9350;color:#fff}
+.btn-s{background:#f0ede5;color:#3f4a37}
+.btn-d{background:#26302a;color:#c9df9f}
+
+.cta-block{background:#6f9350;border-radius:16px;padding:30px 28px;margin-bottom:14px;position:relative;overflow:hidden}
+.cta-block::before{content:'';position:absolute;inset:0;opacity:0.12;background:repeating-linear-gradient(135deg,#fff 0,#fff 1px,transparent 1px,transparent 14px)}
+.cta-inner{position:relative;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center}
+@media(max-width:560px){.cta-inner{grid-template-columns:1fr}}
+.cta-eyebrow{font-size:11px;color:#e8f2da;text-transform:uppercase;letter-spacing:0.12em;margin-bottom:6px}
+.cta-title{font-size:21px;font-weight:600;color:#fff;line-height:1.3;margin-bottom:8px}
+.cta-sub{font-size:13px;color:#eaf4dd;line-height:1.5}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;background:#fff;color:#3f6b2a;font-size:14px;font-weight:700;padding:14px 24px;border-radius:50px;text-decoration:none;white-space:nowrap;border:none;cursor:pointer;transition:transform .12s}
+.cta-btn:hover{transform:translateY(-1px)}
+
+.advisor-card{background:#fff;border:1px solid #e6e3db;border-radius:14px;padding:20px 22px;margin-bottom:14px}
+.advisor-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.advisor-grid{grid-template-columns:1fr}}
+.advisor-avatar{width:52px;height:52px;border-radius:50%;background:#f2f8ea;border:2px solid #6f9350;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;color:#3f6b2a;flex-shrink:0}
+.advisor-display{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.advisor-name{font-size:16px;font-weight:600;color:#24261f}
+.advisor-role{font-size:12px;color:#8a897f;margin-top:2px}
+.advisor-contact a{display:flex;align-items:center;gap:8px;font-size:13px;color:#24261f;text-decoration:none;padding:6px 0;border-bottom:1px solid #f0ede5}
+.advisor-contact a:last-child{border:none}
+.advisor-contact a:hover{color:#3f6b2a}
+.advisor-ico{font-size:15px;color:#6f9350;width:20px;text-align:center}
+.edit-label{font-size:11px;color:#8a897f;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.edit-input{width:100%;font-size:13px;padding:9px 12px;border:1px solid #ddd8ce;border-radius:8px;background:#fff;color:#24261f;outline:none}
+.edit-input:focus{border-color:#6f9350;box-shadow:0 0 0 3px rgba(111,147,80,.15)}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:500px){.edit-grid{grid-template-columns:1fr}}
+.cust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.cust-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.cust-grid{grid-template-columns:1fr}}
+
+@media print{
+  body{background:#fff}
+  .wrap{max-width:100%;padding:0}
+  input[type=range],.btn-row,.btn,.cta-block,#lock-bar,#edit-section,#unlock-section,.scen:not(.active),.tbtn:not(.active){display:none !important}
+  .no-print{display:none !important}
+  .card,.steuer,.result,.advisor-card{break-inside:avoid;box-shadow:none}
+  tr.mon{display:table-row !important}
+  .liq-scroll{overflow:visible}
+  table.liq{min-width:0;font-size:9px}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="root">
+
+<div class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-ey">Bodenblick · DWELLII THOW · Tiny-House-Investment</div>
+      <div class="hero-h">Investment- &amp; Steuerrechner</div>
+      <div class="hero-sub">Schritt für Schritt: von der Investition zur monatlichen Rechnung</div>
+      <div class="hero-for" id="hero-for"></div>
+    </div>
+    <div class="hero-kpi">
+      <div class="hero-kpi-v" id="hero-v">—</div>
+      <div class="hero-kpi-l">Netto-Ergebnis / Monat<br>(Anlaufphase)</div>
+    </div>
+  </div>
+</div>
+
+<!-- KUNDE / EXPORT -->
+<div class="card no-print">
+  <div class="sec-label">Angebot personalisieren</div>
+  <div class="cust-grid">
+    <div><div class="edit-label">Kundenname</div><input class="edit-input" id="k-name" placeholder="Max Mustermann" oninput="syncCustomer()"></div>
+    <div><div class="edit-label">E-Mail Kunde</div><input class="edit-input" id="k-mail" placeholder="kunde@mail.de" oninput="syncCustomer()"></div>
+    <div><div class="edit-label">Telefon Kunde</div><input class="edit-input" id="k-tel" placeholder="0170 …" oninput="syncCustomer()"></div>
+    <div><div class="edit-label">Berater</div><input class="edit-input" id="k-berater" value="Uwe Thielke" oninput="syncCustomer()"></div>
+  </div>
+  <div class="btn-row">
+    <button class="btn btn-p" onclick="window.print()">🖨️ Drucken / als PDF</button>
+    <button class="btn btn-s" onclick="sendMail()">✉️ Per E-Mail senden</button>
+    <button class="btn btn-d" onclick="saveOffer()">💾 Angebot speichern (Datei)</button>
+    <button class="btn btn-s" onclick="document.getElementById('loadfile').click()">📂 Angebot laden</button>
+    <input type="file" id="loadfile" accept="application/json" style="display:none" onchange="loadOffer(event)">
+  </div>
+  <div class="note">„Speichern“ lädt eine Datei mit allen Eingaben + Kundendaten herunter, die Sie später wieder laden können. „Per E-Mail senden“ erzeugt das Angebot als PDF und hängt es direkt an (native Teilen-Funktion); wo das nicht unterstützt wird, wird das PDF heruntergeladen und der Mail-Entwurf geöffnet — dann nur noch anhängen.</div>
+</div>
+
+<!-- SCHRITT 1 · INVESTITION -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">1</div>
+    <div class="step-title">Ihre Investition<small>Was Sie einmalig anschaffen — und ob Sie das Grundstück pachten oder kaufen</small></div>
+  </div>
+  <div class="toggle">
+    <div class="tbtn active" id="mode-pacht" onclick="setMode('pacht')">
+      <div class="tbtn-t">Grundstück pachten</div>
+      <div class="tbtn-s">Pacht 25.000 € vorab (mitfinanziert), steuerlich verteilt über 10 J.</div>
+    </div>
+    <div class="tbtn" id="mode-kauf" onclick="setMode('kauf')">
+      <div class="tbtn-t">Grundstück kaufen</div>
+      <div class="tbtn-s">50.000 € + Nebenkosten (M-V) · Grundstück bleibt Ihr Vermögen · besserer Zins</div>
+    </div>
+  </div>
+  <div id="inv-rows"></div>
+</div>
+
+<!-- SCHRITT 2 · FINANZIERUNG -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">2</div>
+    <div class="step-title">Finanzierung<small>Eigenkapital, Zins und Laufzeit — die Tilgung ergibt sich daraus</small></div>
+  </div>
+  <div class="slider-wrap">
+    <div class="slider-top"><span class="slider-lbl">Eigenkapital-Anteil</span>
+      <div><div class="slider-val" id="v-ek">20 %</div><div class="slider-hint" id="v-ek-eur">= — €</div></div></div>
+    <input type="range" id="ekpct" min="0" max="100" step="5" value="20">
+  </div>
+  <div class="slider-wrap">
+    <div class="slider-top"><span class="slider-lbl">Sollzins Finanzierung</span>
+      <div><div class="slider-val" id="v-zins">5,50 %</div><div class="slider-hint">je nach Bonität 4,5 – 6,5 %</div></div></div>
+    <input type="range" id="zins" min="4" max="7" step="0.1" value="5.5">
+  </div>
+  <div class="slider-wrap" id="landdisc-wrap" style="display:none">
+    <div class="slider-top"><span class="slider-lbl">Zinsvorteil Grundstück (Grundschuld)</span>
+      <div><div class="slider-val" id="v-landdisc">1,00 %</div><div class="slider-hint">Bank im Grundbuch → günstiger</div></div></div>
+    <input type="range" id="landdisc" min="0" max="1.5" step="0.1" value="1">
+  </div>
+  <div class="slider-wrap">
+    <div class="slider-top"><span class="slider-lbl">Laufzeit / Rückführung</span>
+      <div><div class="slider-val" id="v-term">10 Jahre</div><div class="slider-hint" id="v-tilg">Anfangstilgung ~10 %</div></div></div>
+    <input type="range" id="term" min="10" max="25" step="1" value="10">
+  </div>
+  <div class="mini-grid">
+    <div class="mini"><div class="mini-l">Darlehen gesamt</div><div class="mini-v" id="m-darl">— €</div></div>
+    <div class="mini"><div class="mini-l">Rate / Monat</div><div class="mini-v" id="m-rate">— €</div></div>
+    <div class="mini"><div class="mini-l">Ø Sollzins</div><div class="mini-v" id="m-zins">— %</div></div>
+  </div>
+  <div class="note" id="fin-note">Annuitätendarlehen. Abschreibung des Tiny House bleibt immer 10 Jahre, unabhängig von der Laufzeit.</div>
+</div>
+
+<!-- SCHRITT 3 · MIETEINNAHMEN -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">3</div>
+    <div class="step-title">Mieteinnahmen<small>Auslastung wählen — Hauptsaison bevorzugt belegt</small></div>
+  </div>
+  <div class="scen-grid" id="scen-grid">
+    <div class="scen" data-s="0" onclick="setScen(0)">
+      <div class="scen-days">120<small> Tage</small></div>
+      <div class="scen-split">80 Tage Hauptsaison (100&nbsp;€)<br>40 Tage Nebensaison (70&nbsp;€)</div>
+      <div class="scen-gross">10.800 € Umsatz p.a.</div><div class="scen-check">✓ gewählt</div>
+    </div>
+    <div class="scen active" data-s="1" onclick="setScen(1)">
+      <div class="scen-days">180<small> Tage</small></div>
+      <div class="scen-split">120 Tage Hauptsaison (100&nbsp;€)<br>60 Tage Nebensaison (70&nbsp;€)</div>
+      <div class="scen-gross">16.200 € Umsatz p.a.</div><div class="scen-check">✓ gewählt</div>
+    </div>
+    <div class="scen" data-s="2" onclick="setScen(2)">
+      <div class="scen-days">240<small> Tage</small></div>
+      <div class="scen-split">160 Tage Hauptsaison (100&nbsp;€)<br>80 Tage Nebensaison (70&nbsp;€)</div>
+      <div class="scen-gross">21.600 € Umsatz p.a.</div><div class="scen-check">✓ gewählt</div>
+    </div>
+  </div>
+  <div class="saison-grid">
+    <div class="saison-item">
+      <div style="font-size:11px;color:#3f6b2a;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Hauptsaison · 100 € / Tag</div>
+      <div style="font-size:12px;color:#8a897f;margin:3px 0" id="s-high-d">120 Tage</div>
+      <div style="font-size:15px;font-weight:600" id="s-high-v">12.000 €</div>
+      <div class="sbar"><div class="sbar-fill" id="s-high-bar" style="width:74%;background:#6f9350"></div></div>
+    </div>
+    <div class="saison-item">
+      <div style="font-size:11px;color:#c58f2c;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Nebensaison · 70 € / Tag</div>
+      <div style="font-size:12px;color:#8a897f;margin:3px 0" id="s-low-d">60 Tage</div>
+      <div style="font-size:15px;font-weight:600" id="s-low-v">4.200 €</div>
+      <div class="sbar"><div class="sbar-fill" id="s-low-bar" style="width:26%;background:#d4a24a"></div></div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:12px"><span class="rl">Miet-Umsatz brutto p.a.</span><span class="rv pos" id="mi-gross">16.200 €</span></div>
+  <div class="row"><span class="rl i">− Betreibergebühr 25 %</span><span class="rv neg" id="mi-mgmt">−4.050 €</span></div>
+  <div class="row"><span class="rl b">Netto-Mieteinnahmen p.a.</span><span class="rv b" id="mi-netto">12.150 €</span></div>
+</div>
+
+<!-- SCHRITT 4 · MONATLICH -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">4</div>
+    <div class="step-title">So rechnet es sich monatlich<small>Einnahmen minus Kosten — Schritt für Schritt (Jahr 1)</small></div>
+  </div>
+  <div class="wf-row"><span class="l"><span class="op">+</span>Netto-Mieteinnahmen</span><span class="v pos" id="wf-miete">—</span></div>
+  <div class="wf-row" id="wf-pacht-row"><span class="l"><span class="op">−</span>Pacht Grundstück</span><span class="v neg" id="wf-pacht">—</span></div>
+  <div class="wf-row"><span class="l"><span class="op">−</span>Finanzierungsrate (Zins + Tilgung)</span><span class="v neg" id="wf-rate">—</span></div>
+  <div class="wf-row sub"><span class="l">= Liquidität vor Steuern / Monat</span><span class="v" id="wf-liqpre">—</span></div>
+  <div class="gold-hl"><span class="l">+ Steuervorteil Ø (erste 24 Monate)</span><span class="v" id="wf-tax">—</span></div>
+  <div class="wf-row result"><span class="l">= Netto-Ergebnis / Monat (Anlaufphase)</span><span class="v" id="wf-net">—</span></div>
+  <div class="note">In den ersten 2 Jahren wirkt der Steuervorteil (IAB + Sonder-AfA) am stärksten. Der genaue Verlauf über die gesamte Laufzeit steht in der Liquiditätstabelle (Schritt 6).</div>
+</div>
+
+<!-- SCHRITT 5 · STEUER -->
+<div class="steuer">
+  <div class="step-head" style="border-color:#edd8a6">
+    <div class="step-num" style="background:#c58f2c">5</div>
+    <div class="step-title">Steuervorteil — § 7g EStG<small>Ihr Grenzsteuersatz bestimmt die Ersparnis</small></div>
+  </div>
+  <div class="slider-wrap" style="margin-bottom:18px">
+    <div class="slider-top"><span class="slider-lbl">Zu versteuerndes Jahreseinkommen</span>
+      <div><div class="slider-val" id="v-ein">80.000 €</div><div class="slider-hint" id="v-gst-hint">Grenzsteuersatz ~42 %</div></div></div>
+    <input type="range" id="einkommen" min="30000" max="250000" step="5000" value="80000">
+  </div>
+  <div class="steuer-grid">
+    <div>
+      <div class="row"><span class="rl">Anschaffung Tiny House (netto)</span><span class="rv">74.999 €</span></div>
+      <div class="row"><span class="rl i">Investitionsabzugsbetrag (IAB, 50 %)</span><span class="rv gold">−37.500 €</span></div>
+      <div class="row"><span class="rl i">Sonder-AfA § 7g (20 %, Jahr 1)</span><span class="rv gold">−7.500 €</span></div>
+      <div class="row"><span class="rl i">Lineare AfA (Jahr 1, 10 J.)</span><span class="rv gold">−3.750 €</span></div>
+      <div class="row"><span class="rl i">Ausstattung/GWG + Erschließung</span><span class="rv gold">−9.000 €</span></div>
+      <div class="row" id="t-pacht-row"><span class="rl i">Pacht (§ 11: 2.500 €/J. über 10 J.)</span><span class="rv gold" id="t-pacht">−2.500 €</span></div>
+    </div>
+    <div>
+      <div class="row"><span class="rl">Grenzsteuersatz</span><span class="rv" id="t-gst">~42 %</span></div>
+      <div class="row"><span class="rl">Steuererstattung Jahr 0 (IAB)</span><span class="rv pos" id="t-save0">—</span></div>
+      <div class="row"><span class="rl">Steuererstattung Jahr 1</span><span class="rv pos" id="t-save1">—</span></div>
+      <div class="row"><span class="rl b">Steuervorteil Investitionsphase</span><span class="rv b pos" id="t-savephase">—</span></div>
+      <div class="row"><span class="rl">Netto-Steuereffekt über Laufzeit</span><span class="rv" id="t-save10">—</span></div>
+      <div class="row"><span class="rl i" style="font-size:11px" id="t-buynote">—</span><span class="rv"></span></div>
+    </div>
+  </div>
+  <div class="steuer-box">
+    <div>
+      <div class="steuer-box-l">Liquiditätsrückfluss vom Finanzamt in den ersten 2 Jahren</div>
+      <div class="steuer-box-sub">IAB + Sonder-AfA + lineare AfA × Grenzsteuersatz</div>
+    </div>
+    <div class="steuer-box-v" id="t-headline">—</div>
+  </div>
+</div>
+
+<!-- SCHRITT 6 · LIQUIDITÄT -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">6</div>
+    <div class="step-title">Liquidität über die gesamte Laufzeit<small>Jahr anklicken, um die Monate aufzurollen</small></div>
+  </div>
+  <div class="btn-row no-print" style="margin-top:0;margin-bottom:12px">
+    <button class="btn btn-s" id="btn-expand" onclick="toggleAll()">Alle Monate aufklappen (für Druck)</button>
+  </div>
+  <div class="liq-scroll">
+    <table class="liq" id="liq-table"><thead><tr>
+      <th>Zeitraum</th><th>Netto-Miete</th><th>Pacht</th><th>Zins</th><th>Tilgung</th><th>Abschreib.</th><th>Erg. (steuerl.)</th><th>Steuer +/−</th><th>Liquidität</th><th>Kumuliert</th>
+    </tr></thead><tbody id="liq-body"></tbody></table>
+  </div>
+  <div class="liq-legend">Jahr 0 = Steuervorteil aus dem IAB (vor Anschaffung). „Erg. (steuerl.)“ ist das zu versteuernde Ergebnis (Gewinn/Verlust). In den ersten Jahren überwiegen Verluste → Steuererstattung; ab Jahr 11 (bzw. nach Ende der AfA) entstehen Gewinne → Nachversteuerung. „Kumuliert“ = aufsummierte Liquidität nach Steuern.</div>
+</div>
+
+<!-- SCHRITT 7 · VERMÖGEN -->
+<div class="card">
+  <div class="step-head">
+    <div class="step-num">7</div>
+    <div class="step-title">Vermögensaufbau am Ende der Laufzeit<small>Was übrig bleibt</small></div>
+  </div>
+  <div class="slider-wrap" style="margin-bottom:16px">
+    <div class="slider-top"><span class="slider-lbl">Geschätzter Restwert Tiny House am Ende</span>
+      <div><div class="slider-val" id="v-rest">50 %</div><div class="slider-hint" id="v-rest-eur">= 37.500 €</div></div></div>
+    <input type="range" id="restwert" min="0" max="80" step="5" value="50">
+  </div>
+  <div class="slider-wrap" id="landgrowth-wrap" style="margin-bottom:16px;display:none">
+    <div class="slider-top"><span class="slider-lbl">Wertsteigerung Grundstück p.a.</span>
+      <div><div class="slider-val" id="v-landgrowth">2,0 %</div><div class="slider-hint" id="v-landgrowth-eur">Wert am Ende: — €</div></div></div>
+    <input type="range" id="landgrowth" min="0" max="4" step="0.5" value="2">
+  </div>
+  <div class="verm-grid">
+    <div class="verm-c">
+      <div class="verm-t">Kapitaleinsatz</div>
+      <div class="verm-l">Eigenkapital</div><div class="verm-v" id="w-ek">—</div>
+      <div class="verm-l">− Steuervorteil Phase</div><div class="verm-v" style="color:#a06f16" id="w-taxphase">—</div>
+      <div style="height:1px;background:#e2ddd3;margin:2px 0 8px"></div>
+      <div class="verm-l">Effektiver Netto-Einsatz</div><div class="verm-v" id="w-eff" style="color:#3f6b2a">—</div>
+    </div>
+    <div class="verm-c">
+      <div class="verm-t">Am Ende der Laufzeit</div>
+      <div class="verm-l">Kumulierte Liquidität n. St.</div><div class="verm-v" style="color:#3f6b2a" id="w-cumliq">—</div>
+      <div class="verm-l">Tiny House (Restwert), schuldenfrei</div><div class="verm-v" id="w-resid">—</div>
+      <div class="verm-l" id="w-land-l">Grundstück im Eigentum</div><div class="verm-v" id="w-land">—</div>
+    </div>
+    <div class="verm-c hl">
+      <div class="verm-t" style="color:#3f6b2a">Netto-Gesamtergebnis</div>
+      <div class="verm-l">Vermögenszuwachs</div><div class="verm-v" style="font-size:22px;color:#3f6b2a" id="w-net">—</div>
+      <div class="verm-l">Gesamtrendite auf Eigenkapital</div><div class="verm-v" style="color:#3f6b2a" id="w-roi">—</div>
+      <div class="verm-l" style="margin-top:6px">Ø Rendite p.a.</div><div class="verm-v" style="font-size:14px;color:#8a897f" id="w-roipa">—</div>
+    </div>
+  </div>
+  <div class="note" id="w-note">Netto-Gesamtergebnis = kumulierte Liquidität nach Steuern + Restwert Tiny House (+ Grundstück bei Kauf) − eingesetztes Eigenkapital. Restschuld am Ende = 0 (Volltilgung). Keine Prognose — Modellrechnung.</div>
+</div>
+
+<!-- ERGEBNIS -->
+<div class="result">
+  <div class="result-inner">
+    <div class="result-eyebrow">Ihr Vorteil auf einen Blick</div>
+    <div class="result-main">
+      <div><div class="result-big gold" id="r-tax">—</div>
+        <div class="result-cap">Steuerrückfluss vom Finanzamt in den ersten 2 Jahren</div></div>
+      <div><div class="result-big green" id="r-net">—</div>
+        <div class="result-cap">Netto-Vermögenszuwachs am Ende auf <span id="r-ek">—</span> Eigenkapital</div></div>
+    </div>
+    <div class="result-strip">
+      <div><div class="rs-l">Netto-Ergebnis / Monat</div><div class="rs-v" id="r-liq">—</div></div>
+      <div><div class="rs-l">Effektiver Kapitaleinsatz</div><div class="rs-v" id="r-eff">—</div></div>
+      <div><div class="rs-l">Gesamtrendite EK</div><div class="rs-v" id="r-roi">—</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="feat-grid">
+  <div class="feat"><div class="feat-ico">🏡</div><div class="feat-t"><strong>Schlüsselfertig</strong>Voll möbliert &amp; eingerichtet ab Werk — sofort vermietbar</div></div>
+  <div class="feat"><div class="feat-ico">📋</div><div class="feat-t"><strong>Steuerhebel § 7g</strong>IAB 50 % + Sonder-AfA 20 % + 10 J. lineare AfA</div></div>
+  <div class="feat"><div class="feat-ico">🤝</div><div class="feat-t"><strong>Betreiber inklusive</strong>Buchung, Marketing, Reinigung — keine Fixkosten bei Leerstand</div></div>
+  <div class="feat"><div class="feat-ico">🌿</div><div class="feat-t"><strong>Sachwert</strong>Hochwertige Holzbauweise, bewegliches Wirtschaftsgut</div></div>
+</div>
+
+<!-- BERATER -->
+<div class="advisor-card" id="advisor-card">
+  <div class="sec-label">Ihr persönlicher Finanzierungsberater</div>
+  <div class="advisor-grid">
+    <div>
+      <div class="advisor-display">
+        <div class="advisor-avatar" id="adv-initials">UT</div>
+        <div><div class="advisor-name" id="adv-name-display">Uwe Thielke</div>
+          <div class="advisor-role" id="adv-role-display">Baufinanzierung · CEB Bankshop AG</div></div>
+      </div>
+      <div class="advisor-contact">
+        <a id="adv-tel-link" href="tel:+491795282781"><span class="advisor-ico">📱</span><span id="adv-tel-display">+49 179 52 827 81</span></a>
+        <a id="adv-mobile-link" href="tel:" style="display:none"><span class="advisor-ico">📱</span><span id="adv-mobile-display"></span></a>
+        <a id="adv-mail-link" href="mailto:uwe.thielke@bankshop.de"><span class="advisor-ico">✉️</span><span id="adv-mail-display">uwe.thielke@bankshop.de</span></a>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:10px">
+      <div style="font-size:13px;color:#6b6a60;line-height:1.6">Ich prüfe kostenfrei und unverbindlich die Finanzierbarkeit Ihres Bodenblick-Investments — mit Zugang zu über 750 Banken und auf Wunsch auch Ihrer Hausbank.</div>
+      <div style="font-size:12px;color:#a09e94">✔ Antwort innerhalb 48 Stunden<br>✔ Keine Schufa-Anfrage beim Erstgespräch<br>✔ Auf Wunsch inkl. Ihrer Hausbank</div>
+    </div>
+  </div>
+  <div id="lock-bar" class="no-print" style="margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span id="lock-status-icon" style="font-size:17px">🔓</span>
+    <span id="lock-status-text" style="font-size:12px;color:#8a897f">Beraterdaten sind nicht gesperrt.</span>
+    <button id="lock-btn" onclick="lockFlow()" style="font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid #6f9350;background:#f2f8ea;color:#3f6b2a;cursor:pointer">✏️ Bearbeiten / Sperren</button>
+  </div>
+  <div id="edit-section" style="display:none;margin-top:14px">
+    <div style="background:#f5f4ee;border-radius:10px;padding:16px 18px">
+      <div class="edit-grid">
+        <div><div class="edit-label">Name</div><input class="edit-input" id="inp-name" value="Uwe Thielke"></div>
+        <div><div class="edit-label">Funktion / Unternehmen</div><input class="edit-input" id="inp-role" value="Baufinanzierung · CEB Bankshop AG"></div>
+        <div><div class="edit-label">Telefon / Mobil</div><input class="edit-input" id="inp-tel" value="+49 179 52 827 81"></div>
+        <div><div class="edit-label">Mobil (optional)</div><input class="edit-input" id="inp-mobile" placeholder="0170 / 000 000 0"></div>
+        <div><div class="edit-label">E-Mail</div><input class="edit-input" id="inp-mail" value="uwe.thielke@bankshop.de"></div>
+        <div><div class="edit-label">Link Selbstauskunft</div><input class="edit-input" id="inp-url" value="https://www.finanzexperte.eu/link/selbstauskunft/b/242y241024kaBOHyjJM55xX05By5U6tOTf2FQ2FH6V6MrlgTpwmCOTbrlzbQc7fO"></div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #e2ddd3">
+        <div style="font-size:11px;color:#8a897f;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🔒 Seite nach dem Speichern mit Passwort sperren</div>
+        <div class="edit-grid" style="grid-template-columns:1fr 1fr">
+          <div><div class="edit-label">Passwort setzen</div><input class="edit-input" id="inp-pw" type="password" placeholder="Neues Passwort"></div>
+          <div><div class="edit-label">Passwort bestätigen</div><input class="edit-input" id="inp-pw2" type="password" placeholder="Wiederholen"></div>
+        </div>
+        <div id="pw-hint" style="font-size:11px;color:#b23b3b;margin-top:6px;display:none">Passwörter stimmen nicht überein.</div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+        <button onclick="saveAdvisor()" style="background:#26302a;color:#c9df9f;border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer">💾 Speichern &amp; sperren</button>
+        <button onclick="cancelEdit()" style="background:#f0ede5;color:#6b6a60;border:none;border-radius:8px;padding:9px 18px;font-size:13px;cursor:pointer">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  <div id="unlock-section" style="display:none;margin-top:14px">
+    <div style="background:#f5f4ee;border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <span style="font-size:14px;color:#6b6a60">🔒 Gesperrt. Passwort zum Bearbeiten:</span>
+      <input class="edit-input" id="inp-unlock" type="password" placeholder="Passwort" style="width:200px">
+      <button onclick="tryUnlock()" style="background:#26302a;color:#c9df9f;border:none;border-radius:8px;padding:8px 18px;font-size:13px;cursor:pointer">Entsperren</button>
+      <span id="unlock-err" style="font-size:12px;color:#b23b3b;display:none">Falsches Passwort.</span>
+    </div>
+  </div>
+</div>
+
+<div class="cta-block no-print">
+  <div class="cta-inner">
+    <div>
+      <div class="cta-eyebrow">Ihr nächster Schritt</div>
+      <div class="cta-title">In 48 Stunden zur passenden Finanzierung</div>
+      <div class="cta-sub">Jetzt Selbstauskunft ausfüllen und kostenfrei die Machbarkeit prüfen lassen — unverbindlich, diskret, schnell.</div>
+    </div>
+    <div style="text-align:center">
+      <a id="cta-btn" href="https://www.finanzexperte.eu/link/selbstauskunft/b/242y241024kaBOHyjJM55xX05By5U6tOTf2FQ2FH6V6MrlgTpwmCOTbrlzbQc7fO" class="cta-btn" target="_blank"><span>📋</span> Zur Selbstauskunft</a>
+      <div style="font-size:11px;color:#eaf4dd;margin-top:8px">kostenlos &amp; unverbindlich</div>
+    </div>
+  </div>
+</div>
+
+<div class="note">Modellrechnung für ein DWELLII THOW im Projekt Bodenblick als B2B-Sachwertinvestment. Alle Werte netto (Vorsteuerabzug für vorsteuerabzugsberechtigte Investoren; USt durchlaufend). IAB (§ 7g Abs. 1) und Sonder-AfA (§ 7g Abs. 5) setzen überwiegend betriebliche Nutzung (≥ 90 %) und weitere Voraussetzungen voraus. Lineare AfA über 10 Jahre. Vorausgezahlte Pacht wird nach § 11 Abs. 2 Satz 3 EStG zwingend gleichmäßig über 10 Jahre verteilt (2.500 €/J.). Beim Grundstückskauf: Grunderwerbsteuer M-V 6 % + Notar/Grundbuch ~2 %; Grund und Boden ist nicht abschreibbar. Ausstattung/Extras (GWG) und Erschließung im Jahr 1 vereinfacht sofort abgesetzt. Steuer vereinfacht nach Grundtarif 2024 — ohne Soli/Kirchensteuer. Irrtümer vorbehalten — Steuerberater konsultieren. Stand: Juli 2026.</div>
+
+<div style="height:28px"></div>
+
+<div style="background:#24261f;border-radius:16px;padding:30px 28px;color:#9aa593">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:26px;margin-bottom:26px">
+    <div>
+      <div style="font-size:11px;color:#a8c488;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Produkt</div>
+      <div style="font-size:13px;font-weight:600;color:#eef0e6;margin-bottom:6px">DWELLII GmbH</div>
+      <div style="font-size:12px;line-height:1.8">Lärchenstraße 3<br>91207 Lauf a.d. Pegnitz<br>
+        <a href="mailto:hello@dwellii.com" style="color:#a8c488;text-decoration:none">hello@dwellii.com</a><br>
+        <a href="https://www.dwellii.com" target="_blank" style="color:#9aa593;text-decoration:none">www.dwellii.com</a></div>
+      <div style="font-size:11px;margin-top:10px;line-height:1.7;color:#6f7566">HRB 43946 Nürnberg<br>USt-IdNr.: DE453338532</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:#a8c488;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Finanzierung</div>
+      <div style="font-size:13px;font-weight:600;color:#eef0e6;margin-bottom:6px">CEB Bankshop AG</div>
+      <div style="font-size:12px;line-height:1.8">Stallbaumstraße 11<br>04155 Leipzig<br>
+        <a href="tel:+493415908400" style="color:#9aa593;text-decoration:none">0341 / 590 84-0</a><br>
+        <a href="mailto:info@bankshop.de" style="color:#a8c488;text-decoration:none">info@bankshop.de</a></div>
+      <div style="font-size:11px;margin-top:10px;line-height:1.7;color:#6f7566">Amtsgericht Leipzig, HRB 22885<br>Vorstand: Sven Thom, Nils Thom<br>Steuer-Nr.: 232/100/00623</div>
+    </div>
+    <div>
+      <div style="font-size:11px;color:#a8c488;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Erlaubnis &amp; Register</div>
+      <div style="font-size:12px;line-height:1.8;color:#9aa593">Immobiliardarlehensvermittler<br>gemäß § 34i Abs. 1 Satz 1 GewO<br>Reg.-Nr.: <span style="color:#c9df9f">D-W-159-Q68C-94</span></div>
+      <div style="font-size:11px;margin-top:10px;line-height:1.7;color:#6f7566">Erlaubnisbehörde: Stadt Leipzig, Ordnungsamt<br>Registerbehörde: IHK Leipzig</div>
+    </div>
+  </div>
+  <div style="border-top:1px solid #363829;padding-top:16px;font-size:11px;color:#565844">© 2026 CEB Bankshop AG · DWELLII GmbH · Projekt Bodenblick. Alle Rechte vorbehalten.</div>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script>
+const fmt = n => new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
+const fmtN = n => new Intl.NumberFormat('de-DE',{maximumFractionDigits:0}).format(Math.round(n));
+const fmtP = (n,d=1) => new Intl.NumberFormat('de-DE',{maximumFractionDigits:d,minimumFractionDigits:d}).format(n)+' %';
+const s = id => document.getElementById(id);
+const sign = n => (n>=0?'+ ':'− ')+fmt(Math.abs(n));
+
+// Konstanten
+const AK=74999, GWG=4000, ERSCH=5000, OBJEKT=AK+GWG+ERSCH;          // 83.999
+const PACHT=25000, PACHT_Y=2500;
+const LAND=50000, GREST=LAND*0.06, NOTAR=LAND*0.015, GRUNDB=LAND*0.005, LAND_TOTAL=LAND+GREST+NOTAR+GRUNDB; // 54.000
+const OP_FEE=0.25, HIGH=100, LOW=70;
+const SCEN=[{days:120,h:80,l:40},{days:180,h:120,l:60},{days:240,h:160,l:80}];
+let curScen=1, mode='pacht';
+
+function grenz(z){
+  if(z<=11784) return 0;
+  if(z<=17005) return (14+(z-11784)*10/5221)/100;
+  if(z<=66760) return (24+(z-17005)*18/49755)/100;
+  if(z<=277825) return 0.42;
+  return 0.45;
+}
+const IAB=0.5*AK, redAK=AK-IAB, SONDER=0.20*redAK, LIN=redAK/10;
+function afa(y){ if(y<1||y>10) return 0; if(y===1) return LIN+SONDER; if(y<=5) return LIN; return (redAK-(SONDER+LIN*5))/5; }
+
+// monatliche Amortisation, liefert Monatsarrays
+function amortMonthly(P,annualRate,years){
+  const rm=annualRate/12, n=years*12;
+  const Am = rm>0 ? P*rm/(1-Math.pow(1+rm,-n)) : P/n;
+  let bal=P; const mi=[], mp=[];
+  for(let m=0;m<n;m++){ const i=bal*rm, p=Am-i; bal-=p; mi.push(i); mp.push(Math.max(p,0)); }
+  return {Am, mi, mp};
+}
+
+function model(){
+  const zins=+s('zins').value, ekPct=+s('ekpct').value, term=+s('term').value;
+  const landDisc=+s('landdisc').value, zve=+s('einkommen').value, restPct=+s('restwert').value;
+  const landGrowth=+s('landgrowth').value;
+  const sc=SCEN[curScen];
+  const gross=sc.h*HIGH+sc.l*LOW, netrent=gross*(1-OP_FEE), mg=grenz(zve);
+  const extra = mode==='pacht' ? PACHT : LAND_TOTAL;
+  const base = OBJEKT + extra, ek = base*ekPct/100;
+  const loanObj = OBJEKT*(1-ekPct/100), loanExtra = extra*(1-ekPct/100);
+  const extraRate = mode==='kauf' ? Math.max(0,(zins-landDisc)) : zins;
+  const aObj = amortMonthly(loanObj, zins/100, term);
+  const aExt = amortMonthly(loanExtra, extraRate/100, term);
+  const annuityMo = aObj.Am + aExt.Am;
+  const nM = term*12;
+  const avgRate = (loanObj+loanExtra)>0 ? (loanObj*zins+loanExtra*extraRate)/(loanObj+loanExtra) : zins;
+
+  // Jahr-für-Jahr + Monate
+  const tax0 = IAB*mg;
+  let cum = tax0;
+  const years=[];
+  for(let y=1;y<=term;y++){
+    const lease = (mode==='pacht' && y<=10) ? PACHT_Y : 0;
+    const depAnnual = afa(y) + (y===1 ? GWG+ERSCH : 0);
+    let yi=0, yp=0; const months=[];
+    for(let mo=0;mo<12;mo++){
+      const idx=(y-1)*12+mo;
+      const im=aObj.mi[idx]+aExt.mi[idx], pm=aObj.mp[idx]+aExt.mp[idx];
+      yi+=im; yp+=pm;
+      const rentM=netrent/12, leaseM=lease/12, depM=depAnnual/12;
+      const taxableM = rentM-leaseM-im-depM;
+      const teM = -taxableM*mg;
+      const cfM = rentM-leaseM-(im+pm)+teM;
+      cum+=cfM;
+      months.push({m:mo+1, rent:rentM, lease:leaseM, interest:im, princ:pm, dep:depM, taxable:taxableM, taxeff:teM, cf:cfM, cum});
+    }
+    const taxable = netrent-lease-yi-depAnnual;
+    const taxeff = -taxable*mg;
+    const cf = netrent-lease-(yi+yp)+taxeff;
+    years.push({y, netrent, lease, interest:yi, princ:yp, dep:depAnnual, taxable, taxeff, cf, cum:months[11].cum, months});
+  }
+  const y1=years[0];
+  const savePhase = tax0 + y1.taxeff;
+  const residTiny = AK*restPct/100;
+  const landEnd = mode==='kauf' ? LAND*Math.pow(1+landGrowth/100, term) : 0;
+  const landGain = landEnd - (mode==='kauf'?LAND:0);
+  const land = landEnd;
+  const cumEnd = years[term-1].cum;
+  const net = cumEnd + residTiny + land - ek;
+  const roi = ek>0 ? net/ek*100 : 0;
+  const cumTax = tax0 + years.reduce((a,y)=>a+y.taxeff,0);
+
+  return {zins,ekPct,term,landDisc,landGrowth,zve,restPct,mg,sc,gross,netrent,extra,base,ek,loanObj,loanExtra,extraRate,avgRate,
+    annuityMo, tax0, y1, savePhase, residTiny, land, landEnd, landGain, cumEnd, net, roi, cumTax, years,
+    rateMonth:annuityMo, pachtMonth:(mode==='pacht'?PACHT_Y/12:0), mieteMonth:netrent/12,
+    liqPreMonth: netrent/12-(mode==='pacht'?PACHT_Y/12:0)-annuityMo,
+    taxMonthRamp: savePhase/24,
+    get netMonthRamp(){ return this.liqPreMonth+this.taxMonthRamp; },
+    effEinsatz: ek-savePhase,
+    startTilg: (loanObj+loanExtra)>0 ? (annuityMo*12/(loanObj+loanExtra) - avgRate/100)*100 : 0};
+}
+
+function invRows(r){
+  if(mode==='pacht'){
+    return `
+    <div class="row"><span class="rl b">Tiny House DWELLII THOW</span><span class="rv b">${fmt(AK)}</span></div>
+    <div class="row"><span class="rl i">schlüsselfertig, voll möbliert (netto)</span><span class="rv"></span></div>
+    <div class="row"><span class="rl b">Erschließung Grundstück</span><span class="rv b">${fmt(ERSCH)}</span></div>
+    <div class="row"><span class="rl b">Ausstattung / Extras</span><span class="rv b">${fmt(GWG)}</span></div>
+    <div class="row"><span class="rl b">Pacht-Vorauszahlung (10 J., vorab)</span><span class="rv b">${fmt(PACHT)}</span></div>
+    <div class="row"><span class="rl i">wird mitfinanziert · steuerlich 2.500 €/J. über 10 J. (§ 11 EStG)</span><span class="rv"></span></div>
+    <div class="row total"><span class="rl b">Gesamtinvestition (Finanzierungsbasis)</span><span class="rv b" style="color:#3f6b2a">${fmt(OBJEKT+PACHT)}</span></div>`;
+  } else {
+    return `
+    <div class="row"><span class="rl b">Tiny House DWELLII THOW</span><span class="rv b">${fmt(AK)}</span></div>
+    <div class="row"><span class="rl b">Erschließung Grundstück</span><span class="rv b">${fmt(ERSCH)}</span></div>
+    <div class="row"><span class="rl b">Ausstattung / Extras</span><span class="rv b">${fmt(GWG)}</span></div>
+    <div class="row"><span class="rl b">Grundstück Kaufpreis</span><span class="rv b">${fmt(LAND)}</span></div>
+    <div class="row"><span class="rl i">Grunderwerbsteuer M-V 6 %</span><span class="rv">${fmt(GREST)}</span></div>
+    <div class="row"><span class="rl i">Notar ~1,5 % + Grundbuch ~0,5 %</span><span class="rv">${fmt(NOTAR+GRUNDB)}</span></div>
+    <div class="row"><span class="rl i">Grund &amp; Boden — nicht abschreibbar, bleibt Ihr Vermögen</span><span class="rv"></span></div>
+    <div class="row total"><span class="rl b">Gesamtinvestition (Finanzierungsbasis)</span><span class="rv b" style="color:#3f6b2a">${fmt(OBJEKT+LAND_TOTAL)}</span></div>`;
+  }
+}
+
+function render(){
+  const r=model();
+
+  // slider labels
+  s('v-ek').textContent=r.ekPct+' %'; s('v-ek-eur').textContent='= '+fmt(r.ek);
+  s('v-zins').textContent=r.zins.toFixed(2).replace('.',',')+' %';
+  s('v-landdisc').textContent=r.landDisc.toFixed(2).replace('.',',')+' %';
+  s('v-term').textContent=r.term+' Jahre';
+  s('v-tilg').textContent='Anfangstilgung ~'+fmtP(Math.max(0,r.startTilg),1);
+  s('v-ein').textContent=fmtN(r.zve)+' €';
+  s('v-gst-hint').textContent='Grenzsteuersatz ~'+Math.round(r.mg*100)+' %';
+  s('v-rest').textContent=r.restPct+' %'; s('v-rest-eur').textContent='= '+fmt(r.residTiny);
+  s('v-landgrowth').textContent=r.landGrowth.toFixed(1).replace('.',',')+' %';
+  s('v-landgrowth-eur').textContent='Wert am Ende: '+fmt(r.landEnd);
+  s('landgrowth-wrap').style.display = mode==='kauf' ? 'block' : 'none';
+
+  s('landdisc-wrap').style.display = mode==='kauf' ? 'block' : 'none';
+  s('mode-pacht').classList.toggle('active',mode==='pacht');
+  s('mode-kauf').classList.toggle('active',mode==='kauf');
+  document.querySelectorAll('.scen').forEach(el=>el.classList.toggle('active',+el.dataset.s===curScen));
+
+  // Schritt 1
+  s('inv-rows').innerHTML=invRows(r);
+
+  // Schritt 2
+  s('m-darl').textContent=fmt(r.loanObj+r.loanExtra);
+  s('m-rate').textContent=fmt(r.rateMonth);
+  s('m-zins').textContent=r.mode==='kauf'
+    ? (r.zins.toFixed(1)+' / '+r.extraRate.toFixed(1)+' %').replace(/\./g,',')
+    : r.zins.toFixed(2).replace('.',',')+' %';
+  s('fin-note').textContent = mode==='kauf'
+    ? 'Grundstück-Tranche durch Grundschuld besichert → '+r.extraRate.toFixed(2).replace('.',',')+' % statt '+r.zins.toFixed(2).replace('.',',')+' %. Abschreibung Tiny House bleibt 10 Jahre.'
+    : 'Annuitätendarlehen inkl. Pacht-Vorauszahlung. Abschreibung Tiny House bleibt 10 Jahre, unabhängig von der Laufzeit.';
+
+  // Schritt 3
+  s('s-high-d').textContent=r.sc.h+' Tage'; s('s-high-v').textContent=fmt(r.sc.h*HIGH);
+  s('s-low-d').textContent=r.sc.l+' Tage'; s('s-low-v').textContent=fmt(r.sc.l*LOW);
+  const hp=Math.round(r.sc.h*HIGH/r.gross*100);
+  s('s-high-bar').style.width=hp+'%'; s('s-low-bar').style.width=(100-hp)+'%';
+  s('mi-gross').textContent=fmt(r.gross); s('mi-mgmt').textContent='− '+fmt(r.gross*OP_FEE); s('mi-netto').textContent=fmt(r.netrent);
+
+  // Schritt 4
+  s('wf-miete').textContent='+ '+fmt(r.mieteMonth);
+  s('wf-pacht-row').style.display = mode==='pacht' ? 'flex' : 'none';
+  s('wf-pacht').textContent='− '+fmt(r.pachtMonth);
+  s('wf-rate').textContent='− '+fmt(r.rateMonth);
+  s('wf-liqpre').textContent=sign(r.liqPreMonth);
+  s('wf-tax').textContent='+ '+fmt(r.taxMonthRamp);
+  s('wf-net').textContent=sign(r.netMonthRamp);
+
+  // Schritt 5
+  s('t-gst').textContent='~'+Math.round(r.mg*100)+' %';
+  s('t-pacht-row').style.display = mode==='pacht' ? 'flex' : 'none';
+  s('t-save0').textContent='+ '+fmt(r.tax0);
+  s('t-save1').textContent='+ '+fmt(r.y1.taxeff);
+  s('t-savephase').textContent='+ '+fmt(r.savePhase);
+  s('t-save10').textContent=sign(r.cumTax);
+  s('t-buynote').textContent = mode==='kauf'
+    ? 'Grundstück nicht abschreibbar — dafür bleibt es Vermögen'
+    : 'inkl. spätere Nachversteuerung der Gewinne';
+  s('t-headline').textContent=fmt(r.savePhase);
+
+  // Schritt 6 Tabelle
+  buildTable(r);
+
+  // Schritt 7
+  s('w-ek').textContent=fmt(r.ek);
+  s('w-taxphase').textContent='− '+fmt(r.savePhase);
+  s('w-eff').textContent = r.effEinsatz>=0 ? fmt(r.effEinsatz) : '0 € · Steuervorteil > EK';
+  s('w-cumliq').textContent=sign(r.cumEnd);
+  s('w-resid').textContent=fmt(r.residTiny);
+  s('w-land-l').style.display = mode==='kauf' ? 'block' : 'none';
+  s('w-land').style.display = mode==='kauf' ? 'block' : 'none';
+  s('w-land-l').textContent='Grundstück-Wert nach '+r.term+' J. (Kauf 50.000 € + '+fmtP(r.landGrowth,1)+'/J.)';
+  s('w-land').textContent=fmt(r.landEnd)+'  (+ '+fmt(r.landGain)+')';
+  s('w-note').textContent = mode==='kauf'
+    ? 'Netto-Gesamtergebnis = kumulierte Liquidität nach Steuern + Restwert Tiny House + Grundstückswert (inkl. '+fmtP(r.landGrowth,1)+' Wertsteigerung p.a.) − Eigenkapital. Ein realisierter Verkaufsgewinn wäre im Betriebsvermögen steuerpflichtig. Restschuld am Ende = 0. Keine Prognose — Modellrechnung.'
+    : 'Netto-Gesamtergebnis = kumulierte Liquidität nach Steuern + Restwert Tiny House − eingesetztes Eigenkapital. Bei Pacht kein Grundstücksvermögen. Restschuld am Ende = 0 (Volltilgung). Keine Prognose — Modellrechnung.';
+  s('w-net').textContent=fmt(r.net);
+  s('w-roi').textContent=fmtP(r.roi,0);
+  s('w-roipa').textContent='≈ '+fmtP(r.roi/r.term,1)+' p.a.';
+
+  // Ergebnis
+  s('r-tax').textContent=fmt(r.savePhase);
+  s('r-net').textContent=fmt(r.net);
+  s('r-ek').textContent=fmt(r.ek);
+  s('r-liq').textContent=sign(r.netMonthRamp)+' /Mon.';
+  s('r-eff').textContent=fmt(r.effEinsatz);
+  s('r-roi').textContent=fmtP(r.roi,0);
+
+  s('hero-v').textContent=sign(r.netMonthRamp);
+}
+
+// Liquiditätstabelle mit aufklappbaren Monaten
+function td(v,cls){ return '<td class="'+(cls||'')+'">'+(v>=0?'':'−')+fmtN(Math.abs(v))+'</td>'; }
+function buildTable(r){
+  const body=s('liq-body'); let html='';
+  // Jahr 0
+  html+='<tr class="yr yr0"><td>Jahr 0 · IAB</td><td>–</td><td>–</td><td>–</td><td>–</td>'
+      + '<td>'+fmtN(IAB)+'</td>'+td(-IAB,'neg')+td(r.tax0,'pos b')+td(r.tax0,'pos')+td(r.tax0,'b')+'</tr>';
+  r.years.forEach(y=>{
+    html+='<tr class="yr" data-y="'+y.y+'"><td>Jahr '+y.y+'</td>'
+      + td(y.netrent,'pos') + td(-y.lease, y.lease?'neg':'') + td(-y.interest,'neg') + td(-y.princ)
+      + td(-y.dep, y.dep?'':'') + td(y.taxable, y.taxable>=0?'':'pos') + td(y.taxeff, y.taxeff>=0?'pos':'neg')
+      + td(y.cf, y.cf>=0?'pos':'neg') + td(y.cum,'b') + '</tr>';
+  });
+  body.innerHTML=html;
+  body.querySelectorAll('tr.yr[data-y]').forEach(tr=>{
+    tr.addEventListener('click',()=>toggleYear(tr, r));
+  });
+  allOpen=false;
+  const be=s('btn-expand'); if(be) be.textContent='Alle Monate aufklappen (für Druck)';
+}
+let allOpen=false;
+function toggleAll(){
+  const r=model();
+  const rows=[...document.querySelectorAll('#liq-body tr.yr[data-y]')];
+  if(!allOpen){
+    rows.forEach(tr=>{ if(!tr.classList.contains('open')) toggleYear(tr,r); });
+    allOpen=true; s('btn-expand').textContent='Alle Monate einklappen';
+  } else {
+    rows.forEach(tr=>{ if(tr.classList.contains('open')) toggleYear(tr,r); });
+    allOpen=false; s('btn-expand').textContent='Alle Monate aufklappen (für Druck)';
+  }
+}
+function toggleYear(tr, r){
+  const y=+tr.dataset.y;
+  if(tr.classList.contains('open')){
+    tr.classList.remove('open');
+    let nx=tr.nextElementSibling;
+    while(nx && nx.classList.contains('mon')){ const del=nx; nx=nx.nextElementSibling; del.remove(); }
+    return;
+  }
+  tr.classList.add('open');
+  const yr=r.years[y-1];
+  let frag='';
+  yr.months.forEach(m=>{
+    frag+='<tr class="mon"><td>Monat '+m.m+'</td>'
+      + td(m.rent,'') + td(-m.lease, m.lease?'':'') + td(-m.interest) + td(-m.princ)
+      + td(-m.dep) + td(m.taxable) + td(m.taxeff, m.taxeff>=0?'pos':'neg') + td(m.cf) + td(m.cum) + '</tr>';
+  });
+  tr.insertAdjacentHTML('afterend', frag);
+}
+
+function setScen(i){ curScen=i; render(); }
+function setMode(m){ mode=m; render(); }
+['zins','ekpct','term','landdisc','landgrowth','einkommen','restwert'].forEach(id=>s(id).addEventListener('input',render));
+render();
+
+// ---- Kundendaten / Personalisierung ----
+function syncCustomer(){
+  const name=s('k-name').value.trim();
+  s('hero-for').textContent = name ? 'Angebot für: '+name : '';
+}
+function offerState(){
+  return { mode, curScen,
+    ekpct:s('ekpct').value, zins:s('zins').value, term:s('term').value, landdisc:s('landdisc').value, landgrowth:s('landgrowth').value,
+    einkommen:s('einkommen').value, restwert:s('restwert').value,
+    customer:{ name:s('k-name').value, mail:s('k-mail').value, tel:s('k-tel').value, berater:s('k-berater').value } };
+}
+function saveOffer(){
+  const data=offerState();
+  const name=(data.customer.name||'Angebot').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Angebot';
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='Bodenblick_'+name.replace(/\s+/g,'_')+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+}
+function loadOffer(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      mode=d.mode||'pacht'; curScen=+d.curScen||1;
+      ['ekpct','zins','term','landdisc','landgrowth','einkommen','restwert'].forEach(k=>{ if(d[k]!=null) s(k).value=d[k]; });
+      if(d.customer){ s('k-name').value=d.customer.name||''; s('k-mail').value=d.customer.mail||''; s('k-tel').value=d.customer.tel||''; s('k-berater').value=d.customer.berater||''; }
+      syncCustomer(); render();
+    }catch(err){ alert('Datei konnte nicht gelesen werden.'); }
+  };
+  rd.readAsText(f); ev.target.value='';
+}
+function downloadFile(file){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(file); a.download=file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function safeName(){ return ((s('k-name').value.trim()||'Angebot').replace(/[^\wäöüÄÖÜß -]/g,'').trim()||'Angebot').replace(/\s+/g,'_'); }
+
+function offerFiles(r,c){
+  const nm=safeName();
+  let main;
+  if(window.jspdf && window.jspdf.jsPDF){
+    try{ main=new File([buildOfferPdf(r,c)],'Bodenblick-Angebot_'+nm+'.pdf',{type:'application/pdf'}); }
+    catch(e){ main=new File([buildOfferHtml(r,c)],'Bodenblick-Angebot_'+nm+'.html',{type:'text/html'}); }
+  } else {
+    main=new File([buildOfferHtml(r,c)],'Bodenblick-Angebot_'+nm+'.html',{type:'text/html'});
+  }
+  const jsonFile=new File([JSON.stringify(offerState(),null,2)],'Bodenblick_'+nm+'.json',{type:'application/json'});
+  return [main,jsonFile];
+}
+
+function buildOfferPdf(r,c){
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF({unit:'pt',format:'a4'});
+  const W=doc.internal.pageSize.getWidth(), M=40;
+  const E=v=>fmtN(v)+' EUR';
+  const S=v=>(v>=0?'+ ':'- ')+fmtN(Math.abs(v))+' EUR';
+  const f=v=>(v<0?'-':'')+fmtN(Math.abs(v));
+  const variant = mode==='kauf'?'Grundstueck kaufen (50.000 EUR + Nebenkosten M-V)':'Grundstueck pachten (25.000 EUR vorab, § 11 EStG)';
+  // Kopf
+  doc.setFillColor(38,48,42); doc.rect(0,0,W,94,'F');
+  doc.setTextColor(168,196,136); doc.setFontSize(8);
+  doc.text('BODENBLICK · DWELLII THOW · TINY-HOUSE-INVESTMENT',M,32);
+  doc.setTextColor(242,242,234); doc.setFontSize(18); doc.text('Investment-Angebot',M,56);
+  doc.setTextColor(201,223,159); doc.setFontSize(9);
+  if(c.name) doc.text('Fuer: '+c.name+(c.mail?' · '+c.mail:'')+(c.tel?' · '+c.tel:''),M,73);
+  doc.text('Variante: '+variant+'  ·  Auslastung '+r.sc.days+' Tage/Jahr',M,87);
+  let y=120;
+  // KPIs
+  const kpis=[['Steuervorteil Investitionsphase',E(r.savePhase)],['Netto-Ergebnis/Monat (Anlauf)',S(r.netMonthRamp)],['Vermoegenszuwachs ('+fmtP(r.roi,0)+' EK)',E(r.net)]];
+  const kw=(W-2*M)/3;
+  kpis.forEach((k,i)=>{ const x=M+i*kw;
+    doc.setFillColor(242,248,234); doc.roundedRect(x,y,kw-8,52,6,6,'F');
+    doc.setTextColor(63,107,42); doc.setFontSize(13); doc.text(k[1],x+10,y+27);
+    doc.setTextColor(138,137,127); doc.setFontSize(7.5); doc.text(k[0],x+10,y+42);
+  });
+  y+=76;
+  doc.setTextColor(111,147,80); doc.setFontSize(10); doc.text('INVESTITION & FINANZIERUNG',M,y); y+=5;
+  doc.setDrawColor(230,227,219); doc.line(M,y,W-M,y); y+=15;
+  const fin=[['Gesamtinvestition (Finanzierungsbasis)',E(r.base)],['Eigenkapital ('+r.ekPct+' %)',E(r.ek)],
+    ['Darlehen',E(r.loanObj+r.loanExtra)],['Zins / Laufzeit',r.zins.toFixed(2).replace('.',',')+' % / '+r.term+' Jahre'],
+    ['Rate / Monat',E(r.rateMonth)]];
+  if(mode==='kauf') fin.push(['Grundstueckswert am Ende ('+fmtP(r.landGrowth,1)+'/J.)',E(r.landEnd)]);
+  doc.setFontSize(9.5);
+  fin.forEach(row=>{ doc.setTextColor(107,106,96); doc.text(row[0],M,y); doc.setTextColor(36,38,31); doc.text(row[1],W-M,y,{align:'right'}); doc.setDrawColor(240,237,229); doc.line(M,y+4,W-M,y+4); y+=18; });
+  y+=10;
+  // Tabelle
+  const head=[['Zeitraum','Netto-Miete','Pacht','Zins','Tilgung','Abschr.','Erg.(st.)','Steuer','Liquiditaet','Kumuliert']];
+  const body=[['Jahr 0 · IAB','-','-','-','-',fmtN(37500),'-'+fmtN(37500),'+'+fmtN(r.tax0),'+'+fmtN(r.tax0),f(r.tax0)]];
+  r.years.forEach(yr=>{ body.push(['Jahr '+yr.y, f(yr.netrent), yr.lease?f(-yr.lease):'-', f(-yr.interest), f(-yr.princ), f(-yr.dep), f(yr.taxable),
+    (yr.taxeff>=0?'+':'-')+fmtN(Math.abs(yr.taxeff)), (yr.cf>=0?'+':'-')+fmtN(Math.abs(yr.cf)), f(yr.cum)]); });
+  const atOpts={ startY:y, head, body, margin:{left:M,right:M},
+    styles:{fontSize:7.5,cellPadding:3,halign:'right'},
+    headStyles:{fillColor:[38,48,42],textColor:[230,236,223],halign:'right',fontSize:7.5},
+    alternateRowStyles:{fillColor:[248,249,244]},
+    columnStyles:{0:{halign:'left'}},
+    didParseCell:function(d){ if(d.column.index===0) d.cell.styles.halign='left'; if(d.row.index===0 && d.section==='body') d.cell.styles.fillColor=[242,248,234]; }
+  };
+  if(typeof doc.autoTable==='function') doc.autoTable(atOpts);
+  else if(window.jspdf && typeof window.jspdf.autoTable==='function') window.jspdf.autoTable(doc,atOpts);
+  else throw new Error('autotable unavailable');
+  let yy=doc.lastAutoTable.finalY+20;
+  if(yy>760){ doc.addPage(); yy=48; }
+  const adv=advisorInfo();
+  doc.setTextColor(111,147,80); doc.setFontSize(10); doc.text('BERATUNG',M,yy); yy+=5; doc.setDrawColor(230,227,219); doc.line(M,yy,W-M,yy); yy+=15;
+  doc.setFontSize(9.5); doc.setTextColor(36,38,31);
+  doc.text('Berater: '+(c.berater||adv.name||'-')+(adv.tel?'  ·  '+adv.tel:'')+(adv.mail?'  ·  '+adv.mail:''),M,yy); yy+=15;
+  doc.text('Finanzierung: CEB Bankshop AG  ·  Produkt: DWELLII GmbH',M,yy); yy+=22;
+  doc.setFontSize(7); doc.setTextColor(160,158,148);
+  const note='Modellrechnung, unverbindlich. Alle Werte netto. IAB / Sonder-AfA § 7g setzen mind. 90 % betriebliche Nutzung voraus. Pacht-Vorauszahlung nach § 11 Abs. 2 Satz 3 EStG gleichmaessig ueber 10 Jahre verteilt. Beim Kauf: Grunderwerbsteuer M-V 6 % + Notar/Grundbuch ca. 2 %; Grund und Boden nicht abschreibbar. Steuer vereinfacht nach Grundtarif, ohne Soli/Kirchensteuer. Ersetzt keine Steuer- oder Finanzierungsberatung - Steuerberater konsultieren. Stand: Juli 2026.';
+  doc.text(doc.splitTextToSize(note, W-2*M), M, yy);
+  return doc.output('blob');
+}
+
+function buildOfferHtml(r,c){
+  const adv=advisorInfo();
+  const cell=(v,plus)=>{const neg=v<0;return '<td style="text-align:right">'+(neg?'−':(plus?'+':''))+fmtN(Math.abs(v))+'</td>';};
+  let rows='<tr><td>Jahr 0 · IAB</td><td style="text-align:right">–</td><td style="text-align:right">–</td><td style="text-align:right">–</td><td style="text-align:right">–</td>'
+    +'<td style="text-align:right">'+fmtN(37500)+'</td><td style="text-align:right">−'+fmtN(37500)+'</td>'+cell(r.tax0,true)+cell(r.tax0,true)+cell(r.tax0)+'</tr>';
+  r.years.forEach(y=>{
+    rows+='<tr><td>Jahr '+y.y+'</td>'+cell(y.netrent)+ (y.lease?cell(-y.lease):'<td style="text-align:right">–</td>')
+      +cell(-y.interest)+cell(-y.princ)+cell(-y.dep)+cell(y.taxable)+cell(y.taxeff,y.taxeff>=0)+cell(y.cf,y.cf>=0)+cell(y.cum)+'</tr>';
+  });
+  const variant = mode==='kauf'?'Grundstück kaufen (50.000 € + Nebenkosten M-V)':'Grundstück pachten (25.000 € vorab, § 11 EStG)';
+  return `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8"><title>Bodenblick Angebot ${c.name||''}</title>
+<style>body{font-family:-apple-system,Segoe UI,sans-serif;color:#24261f;max-width:800px;margin:24px auto;padding:0 18px;line-height:1.5}
+h1{font-size:22px;margin:0 0 2px}h2{font-size:14px;color:#6f9350;text-transform:uppercase;letter-spacing:.08em;margin:22px 0 8px;border-bottom:1px solid #e6e3db;padding-bottom:5px}
+.hd{background:#26302a;color:#e6ecdf;border-radius:12px;padding:20px 22px;margin-bottom:8px}.hd .ey{color:#a8c488;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
+.for{color:#c9df9f;font-size:13px;margin-top:6px}.kpi{display:flex;gap:24px;flex-wrap:wrap;margin:10px 0}
+.kpi div b{display:block;font-size:20px;color:#3f6b2a}.kpi div span{font-size:11px;color:#8a897f}
+table{border-collapse:collapse;width:100%;font-size:11px;margin-top:6px}th,td{padding:5px 7px;border-bottom:1px solid #eee;text-align:right}th{background:#f5f4ee;color:#6b6a60;text-align:right}th:first-child,td:first-child{text-align:left}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid #f0ede5;padding:5px 0;font-size:13px}
+.note{font-size:10px;color:#a09e94;margin-top:14px;line-height:1.5}</style></head><body>
+<div class="hd"><div class="ey">Bodenblick · DWELLII THOW · Tiny-House-Investment</div>
+<h1>Investment-Angebot</h1>${c.name?'<div class="for">Für: '+c.name+(c.mail?' · '+c.mail:'')+(c.tel?' · '+c.tel:'')+'</div>':''}
+<div class="for">Variante: ${variant} · Auslastung ${r.sc.days} Tage/Jahr</div></div>
+<div class="kpi">
+<div><b>${fmt(r.savePhase)}</b><span>Steuervorteil Investitionsphase</span></div>
+<div><b>${sign(r.netMonthRamp)}/Mon.</b><span>Netto-Ergebnis (Anlaufphase)</span></div>
+<div><b>${fmt(r.net)}</b><span>Vermögenszuwachs (${fmtP(r.roi,0)} auf EK)</span></div></div>
+<h2>Investition &amp; Finanzierung</h2>
+<div class="row"><span>Gesamtinvestition (Finanzierungsbasis)</span><b>${fmt(r.base)}</b></div>
+<div class="row"><span>Eigenkapital (${r.ekPct} %)</span><b>${fmt(r.ek)}</b></div>
+<div class="row"><span>Darlehen</span><b>${fmt(r.loanObj+r.loanExtra)}</b></div>
+<div class="row"><span>Zins / Laufzeit</span><b>${r.zins.toFixed(2).replace('.',',')} % / ${r.term} Jahre</b></div>
+<div class="row"><span>Rate / Monat</span><b>${fmt(r.rateMonth)}</b></div>
+${mode==='kauf'?'<div class="row"><span>Grundstückswert am Ende ('+fmtP(r.landGrowth,1)+'/J.)</span><b>'+fmt(r.landEnd)+'</b></div>':''}
+<h2>Liquidität über die Laufzeit</h2>
+<table><thead><tr><th>Zeitraum</th><th>Netto-Miete</th><th>Pacht</th><th>Zins</th><th>Tilgung</th><th>Abschr.</th><th>Erg. (steuerl.)</th><th>Steuer +/−</th><th>Liquidität</th><th>Kumuliert</th></tr></thead><tbody>${rows}</tbody></table>
+<h2>Beratung</h2>
+<div class="row"><span>Berater</span><b>${c.berater||adv.name||'—'}</b></div>
+${adv.tel?'<div class="row"><span>Telefon</span><b>'+adv.tel+'</b></div>':''}
+${adv.mail?'<div class="row"><span>E-Mail</span><b>'+adv.mail+'</b></div>':''}
+<div class="row"><span>Finanzierung</span><b>CEB Bankshop AG</b></div>
+<div class="note">Modellrechnung, unverbindlich. Alle Werte netto. IAB/Sonder-AfA § 7g setzen ≥ 90 % betriebliche Nutzung voraus. Pacht-Vorauszahlung nach § 11 Abs. 2 S. 3 EStG über 10 J. verteilt. Beim Kauf: GrESt M-V 6 % + Notar/Grundbuch ~2 %, Grund &amp; Boden nicht abschreibbar. Ohne Soli/Kirchensteuer. Steuerberater konsultieren. Stand: Juli 2026.</div>
+</body></html>`;
+}
+
+async function sendMail(){
+  const r=model();
+  const c={ name:s('k-name').value.trim(), mail:s('k-mail').value.trim(), tel:s('k-tel').value.trim(), berater:s('k-berater').value.trim() };
+  const files=offerFiles(r,c);
+  const shortText='Bodenblick Investment-Angebot'+(c.name?' für '+c.name:'')+' — Steuervorteil '+fmt(r.savePhase)+', Vermögenszuwachs '+fmt(r.net)+'. Angebot als Datei im Anhang.';
+  // 1) Native Teilen mit Dateianhang (Handy + moderne Browser)
+  if(navigator.canShare && navigator.canShare({files})){
+    try{ await navigator.share({title:'Bodenblick Angebot', text:shortText, files}); return; }
+    catch(e){ if(e && e.name==='AbortError') return; }
+  }
+  // 2) Fallback: Angebotsdatei herunterladen + Mail-Entwurf öffnen
+  files.forEach(downloadFile);
+  const nl='%0D%0A';
+  const subj=encodeURIComponent('Ihr Bodenblick Investment-Angebot'+(c.name?' – '+c.name:''));
+  const body=
+    'Guten Tag'+(c.name?' '+c.name:'')+','+nl+nl+
+    'anbei Ihr persönliches Bodenblick Tiny-House-Investment-Angebot als Datei.'+nl+nl+
+    'Kurzüberblick:'+nl+
+    'Variante: '+(mode==='kauf'?'Grundstück kaufen':'Grundstück pachten')+nl+
+    'Gesamtinvestition: '+fmt(r.base)+' · Eigenkapital ('+r.ekPct+'%): '+fmt(r.ek)+nl+
+    'Zins/Laufzeit: '+r.zins.toFixed(2).replace('.',',')+'% / '+r.term+' Jahre · Rate/Monat: '+fmt(r.rateMonth)+nl+
+    'Steuervorteil Investitionsphase: '+fmt(r.savePhase)+nl+
+    'Netto-Ergebnis/Monat (Anlaufphase): '+sign(r.netMonthRamp)+nl+
+    (mode==='kauf' ? 'Grundstückswert am Ende: '+fmt(r.landEnd)+nl : '')+
+    'Netto-Vermögenszuwachs: '+fmt(r.net)+' ('+fmtP(r.roi,0)+' auf EK)'+nl+nl+
+    'Mit freundlichen Grüßen'+nl+ (c.berater||'Ihr Berater') +nl+ 'CEB Bankshop AG';
+  window.location.href='mailto:'+encodeURIComponent(c.mail)+'?subject='+subj+'&body='+body;
+  setTimeout(()=>alert('Ihr Mail-Programm öffnet sich. Die Angebotsdatei wurde heruntergeladen — bitte noch an die E-Mail anhängen.'),400);
+}
+
+// ---- Berater editierbar & sperrbar ----
+function initials(name){ return name.trim().split(/\s+/).map(w=>w[0]).join('').toUpperCase().slice(0,2)||'??'; }
+function applyAdvisorData(d){
+  if(!d) return;
+  if(d.name){ s('adv-initials').textContent=initials(d.name); s('adv-name-display').textContent=d.name; s('k-berater').value=d.name; syncCustomer(); }
+  if(d.role) s('adv-role-display').textContent=d.role;
+  if(d.tel){ s('adv-tel-display').textContent=d.tel; s('adv-tel-link').href='tel:'+d.tel.replace(/[^\d+]/g,''); }
+  if(d.mobile){ s('adv-mobile-display').textContent=d.mobile; s('adv-mobile-link').href='tel:'+d.mobile.replace(/[^\d+]/g,''); s('adv-mobile-link').style.display='flex'; }
+  if(d.mail){ s('adv-mail-display').textContent=d.mail; s('adv-mail-link').href='mailto:'+d.mail; }
+  if(d.url && d.url.length>3){ s('cta-btn').href=d.url; }
+}
+function hashPw(pw){ let h=0; for(let i=0;i<pw.length;i++) h=(Math.imul(31,h)+pw.charCodeAt(i))|0; return h.toString(16); }
+function getData(){ try{ return JSON.parse(localStorage.getItem('bodenblick_advisor')||'{}'); }catch(e){ return {}; } }
+function advisorInfo(){
+  const d=getData();
+  return { name: d.name || s('adv-name-display').textContent.trim(),
+    tel: d.tel || s('adv-tel-display').textContent.trim(),
+    mail: d.mail || s('adv-mail-display').textContent.trim() };
+}
+function updateLockBar(locked){
+  if(locked){ s('lock-status-icon').textContent='🔒'; s('lock-status-text').textContent='Beraterdaten sind gesperrt.'; s('lock-btn').textContent='🔓 Entsperren & bearbeiten'; s('lock-btn').onclick=unlockFlow; }
+  else{ s('lock-status-icon').textContent='🔓'; s('lock-status-text').textContent='Beraterdaten sind nicht gesperrt.'; s('lock-btn').textContent='✏️ Bearbeiten / Sperren'; s('lock-btn').onclick=lockFlow; }
+}
+function lockFlow(){
+  s('edit-section').style.display='block'; s('unlock-section').style.display='none';
+  const d=getData();
+  if(d.name)s('inp-name').value=d.name; if(d.role)s('inp-role').value=d.role; if(d.tel)s('inp-tel').value=d.tel;
+  if(d.mobile)s('inp-mobile').value=d.mobile; if(d.mail)s('inp-mail').value=d.mail; if(d.url)s('inp-url').value=d.url;
+  s('inp-pw').value=''; s('inp-pw2').value='';
+}
+function cancelEdit(){ s('edit-section').style.display='none'; }
+function unlockFlow(){ s('unlock-section').style.display='block'; s('edit-section').style.display='none'; s('inp-unlock').value=''; s('unlock-err').style.display='none'; setTimeout(()=>s('inp-unlock').focus(),50); }
+function tryUnlock(){
+  const pw=s('inp-unlock').value; const d=getData();
+  if(!pw){ s('unlock-err').style.display='inline'; s('unlock-err').textContent='Bitte Passwort eingeben.'; return; }
+  if(hashPw(pw)===d.pwhash){ d.pwhash=null; localStorage.setItem('bodenblick_advisor',JSON.stringify(d)); s('unlock-section').style.display='none'; updateLockBar(false); lockFlow(); }
+  else{ s('unlock-err').style.display='inline'; s('unlock-err').textContent='Falsches Passwort.'; }
+}
+function saveAdvisor(){
+  const pw=s('inp-pw').value, pw2=s('inp-pw2').value;
+  if(pw && pw!==pw2){ s('pw-hint').style.display='block'; return; }
+  s('pw-hint').style.display='none';
+  const d={ name:s('inp-name').value.trim()||'Ihr Berater', role:s('inp-role').value.trim()||'Baufinanzierung',
+    tel:s('inp-tel').value.trim(), mobile:s('inp-mobile').value.trim(), mail:s('inp-mail').value.trim(),
+    url:s('inp-url').value.trim(), pwhash: pw?hashPw(pw):null };
+  try{ localStorage.setItem('bodenblick_advisor',JSON.stringify(d)); }catch(e){}
+  applyAdvisorData(d); s('edit-section').style.display='none'; updateLockBar(!!d.pwhash);
+}
+s('inp-unlock') && s('inp-unlock').addEventListener('keydown',e=>{ if(e.key==='Enter') tryUnlock(); });
+(function init(){ try{ const d=getData(); applyAdvisorData(d); updateLockBar(!!d.pwhash); }catch(e){} })();
+</script>
+</body>
+</html>
